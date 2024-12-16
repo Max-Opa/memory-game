@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000'); // Verbindung zum Server herstellen
+const socket = io('https://memory-game-production-91b1.up.railway.app'); // Verbindung zum Server herstellen
 
 socket.on('init', state => {
     console.log('Spiel gestartet:', state);
