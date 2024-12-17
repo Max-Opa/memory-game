@@ -40,9 +40,32 @@ io.on('connection', socket => {
     socket.on('flip_card', data => {
         const { index } = data;
         console.log(`${gameState.currentPlayer} drehte Karte ${index} um`);
-        // Logik hier
-        io.emit('update_game', gameState); // Aktualisierten Zustand an alle Clients senden
-    });
+        // Logik für das Umdrehen von Karten
+        if (!gameState.flippedCards[0]) {
+			gameState.flippedCards[0] = index; // Erste Karte merken
+	  } else {
+			gameState.flippedCards[1] = index; // Zweite Karte merken
+
+			// Prüfen, ob die Karten übereinstimmen
+			const [firstIndex, secondIndex] = gameState.flippedCards;
+			if (firstIndex !== secondIndex &&
+				 Math.floor(firstIndex / 2) === Math.floor(secondIndex / 2)) {
+				 // Karten passen zusammen
+				 console.log(`${gameState.currentPlayer} hat ein Paar gefunden!`);
+				 gameState.scores[gameState.currentPlayer] += 2; // Punkte hinzufügen
+			} else {
+				 // Spieler wechseln, da keine Übereinstimmung
+				 console.log(`${gameState.currentPlayer} hat kein Paar gefunden.`);
+				 gameState.currentPlayer = gameState.currentPlayer === 'Opa' ? 'Max' : 'Opa';
+			}
+
+			// Zurücksetzen für nächsten Zug
+			gameState.flippedCards = [];
+	  }
+
+	  // Aktualisierten Zustand an alle Clients senden
+	  io.emit('update_game', gameState);
+ });
 });
 
 // Karten mischen
